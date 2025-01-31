@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.salihaslantas.scanstream" />
+                  <option name="mobileSdkAppId" value="1:495541791356:android:24b9d794b37fdbc9e937f9" />
+                  <option name="projectId" value="scanstream-78a82" />
+                  <option name="projectNumber" value="495541791356" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
