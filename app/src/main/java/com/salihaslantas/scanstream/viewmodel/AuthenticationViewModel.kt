@@ -6,12 +6,21 @@ import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.tasks.Tasks
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
+import com.google.firebase.storage.FirebaseStorage
+import com.salihaslantas.scanstream.models.CurrentUserModel
+import com.salihaslantas.scanstream.view.screens.OverviewScreen
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 class AuthenticationViewModel(application: Application) : AndroidViewModel(application) {
     val auth = Firebase.auth
@@ -42,7 +51,7 @@ class AuthenticationViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
-    private fun checkUserRole(userId: String, onResult: (String?) -> Unit) {
+    fun checkUserRole(userId: String, onResult: (String?) -> Unit) {
         viewModelScope.launch {
             db.collection("users").document(userId).get()
                 .addOnSuccessListener { document ->
@@ -62,6 +71,26 @@ class AuthenticationViewModel(application: Application) : AndroidViewModel(appli
     fun signOut() {
         auth.signOut()
         println("Sign out")
+    }
+    suspend fun userCardBuilder(firestore: FirebaseFirestore, storage: FirebaseStorage, userId: String): CurrentUserModel {
+        return withContext(Dispatchers.IO) {
+            try {
+                val document = Tasks.await(firestore.collection("users").document(userId).get())
+
+                if (document.exists()) {
+                    CurrentUserModel(
+                        name = document.getString("name") ?: "",
+                        role = document.getString("role") ?: "",
+                        photo = document.getString("photoUrl") ?: ""
+                    )
+                } else {
+                    CurrentUserModel("", "", "")
+                }
+            } catch (e: Exception) {
+                println(e.localizedMessage)
+                CurrentUserModel("", "", "")
+            }
+        }
     }
 }
 sealed class SignInResult {
